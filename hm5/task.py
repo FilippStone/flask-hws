@@ -6,11 +6,14 @@
  Создайте маршрут для получения списка фильмов по жанру (метод GET).
  Реализуйте валидацию данных запроса и ответа."""
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import List
 
 app = FastAPI()
+templates = Jinja2Templates(directory='templates')
 
 
 class Movie(BaseModel):
@@ -25,6 +28,11 @@ movies = [
     Movie(id=2, title="Film 2", description="Description 2", genre="Genre 2"),
     Movie(id=3, title="Film 3", description="Description 3", genre="Genre 1")
 ]
+
+
+@app.get('/', response_class=HTMLResponse)
+async def read_movies(request: Request):
+    return templates.TemplateResponse('index.html', context={'request': request, 'movies': movies})
 
 
 @app.get('/movies', response_model=List[Movie])
